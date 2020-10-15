@@ -4,6 +4,7 @@
 #include <iostream>
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_ttf.h"
 
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
@@ -44,6 +45,27 @@ void renderTexture(SDL_Texture* tex, SDL_Renderer* ren, int x, int y, SDL_Rect* 
     renderTexture(tex, ren, dst, clip);
 }
 
+SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer* renderer) {
+    TTF_Font* font = TTF_OpenFont(fontFile.c_str(), fontSize);
+    if (font == nullptr) {
+        logSDLError(std::cout, "TTF_OpenFont");
+        return nullptr;
+    }
+    SDL_Surface* surf = TTF_RenderText_Blended(font, message.c_str(), color);
+    if (surf == nullptr) {
+        TTF_CloseFont(font);
+        logSDLError(std::cout, "TTF_RenderText");
+        return nullptr;
+    }
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surf);
+    if (texture == nullptr) {
+        logSDLError(std::cout, "CreateTexture");
+    }
+    SDL_FreeSurface(surf);
+    TTF_CloseFont(font);
+    return texture;
+}
+
 int main(int, char**) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         logSDLError(std::cout, "SDL_Init");
@@ -51,6 +73,11 @@ int main(int, char**) {
     }
     if ((IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG) != IMG_INIT_PNG) {
         logSDLError(std::cout, "IMG_Init");
+        SDL_Quit();
+        return 1;
+    }
+    if (TTF_Init() != 0) {
+        logSDLError(std::cout, "TTF_Init");
         SDL_Quit();
         return 1;
     }
@@ -67,25 +94,20 @@ int main(int, char**) {
         SDL_Quit();
         return 1;
     }
-    SDL_Texture* image = loadTexture("bin/image.png", renderer);
+    
+    const std::string fontPath = "bin/sample.ttf";
+    SDL_Color color = { 225, 255, 255, 255 };
+    SDL_Texture* image = renderText("TTF fonts are cool!", fontPath, color, 32, renderer);
     if (image == nullptr) {
-        cleanup(image, renderer, window);
-        IMG_Quit();
+        cleanup(NULL, renderer, window);
+        TTF_Quit();
         SDL_Quit();
         return 1;
     }
-    int iW = 100;
-    int iH = 100;
-    int x = 0.5 * (SCREEN_WIDTH - iW);
-    int y = 0.5 * (SCREEN_HEIGHT - iH);
-    SDL_Rect clips[4];
-    for (int i = 0; i < 4; ++i) {
-        clips[i].x = i / 2 * iW;
-        clips[i].y = i % 2 * iH;
-        clips[i].w = iW;
-        clips[i].h = iH;
-    }
-    int useClip = 0;
+    int iW, iH;
+    SDL_QueryTexture(image, NULL, NULL, &iW, &iH);
+    int x = SCREEN_WIDTH / 2 - iW / 2;
+    int y = SCREEN_HEIGHT / 2 - iH / 2;
 
     SDL_Event e;
     bool quit = false;
@@ -95,22 +117,6 @@ int main(int, char**) {
                 quit = true;
             } else if (e.type == SDL_KEYDOWN) {
                 switch (e.key.keysym.sym) {
-                    case SDLK_1: {
-                        useClip = 0;
-                        break;
-                    }
-                    case SDLK_2: {
-                        useClip = 1;
-                        break;
-                    }
-                    case SDLK_3: {
-                        useClip = 2;
-                        break;
-                    }
-                    case SDLK_4: {
-                        useClip = 3;
-                        break;
-                    }
                     case SDLK_ESCAPE: {
                         quit = true;
                         break;
@@ -123,7 +129,7 @@ int main(int, char**) {
         }
 
         SDL_RenderClear(renderer);
-        renderTexture(image, renderer, x, y, &clips[useClip]);
+        renderTexture(image, renderer, x, y);
         SDL_RenderPresent(renderer);
     }
 
