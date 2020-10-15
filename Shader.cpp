@@ -7,7 +7,8 @@
 
 Shader::Shader() {
     mProgramID = NULL;
-    mPolygonColorLocation = 0;
+    mVertexPos2DLocation = 0;
+    mMultiColorLocation = 0;
     mProjectionMatrixLocation = 0;
     mModelviewMatrixLocation = 0;
 }
@@ -102,9 +103,15 @@ bool Shader::loadProgram() {
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
-    mPolygonColorLocation = glGetUniformLocation(mProgramID, "uColor");
-    if (mPolygonColorLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "uColor");
+
+    mVertexPos2DLocation = glGetAttribLocation(mProgramID, "aPos2D");
+    if (mVertexPos2DLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "aPos2D");
+        return false;
+    }
+    mMultiColorLocation = glGetAttribLocation(mProgramID, "aMultiColor");
+    if (mMultiColorLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "aMultiColor");
         return false;
     }
     mProjectionMatrixLocation = glGetUniformLocation(mProgramID, "uProjection");
@@ -144,10 +151,6 @@ GLuint Shader::loadShaderFromFile(std::string path, GLenum shaderType) {
     return shaderID;
 }
 
-void Shader::setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
-    glUniform4f(mPolygonColorLocation, r, g, b, a);
-}
-
 void Shader::setProjection(glm::mat4 matrix) {
     mProjection = matrix;
 }
@@ -170,4 +173,28 @@ void Shader::updateProjection() {
 
 void Shader::updateModelview() {
     glUniformMatrix4fv(mModelviewMatrixLocation, 1, GL_FALSE, glm::value_ptr(mModelview));
+}
+
+void Shader::setVertexPointer(GLsizei stride, const GLvoid* data) {
+    glVertexAttribPointer(mVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
+}
+
+void Shader::setColorPointer(GLsizei stride, const GLvoid* data) {
+    glVertexAttribPointer(mMultiColorLocation, 4, GL_FLOAT, GL_FALSE, stride, data);
+}
+
+void Shader::enableVertexPointer() {
+    glEnableVertexAttribArray(mVertexPos2DLocation);
+}
+
+void Shader::disableVertexPointer() {
+    glDisableVertexAttribArray(mVertexPos2DLocation);
+}
+
+void Shader::enableColorPointer() {
+    glEnableVertexAttribArray(mMultiColorLocation);
+}
+
+void Shader::disableColorPointer() {
+    glDisableVertexAttribArray(mMultiColorLocation);
 }
