@@ -3,10 +3,13 @@
 
 #include "Shader.h"
 #include <fstream>
+#include <glm/gtc/type_ptr.hpp>
 
 Shader::Shader() {
     mProgramID = NULL;
     mPolygonColorLocation = 0;
+    mProjectionMatrixLocation = 0;
+    mModelviewMatrixLocation = 0;
 }
 
 Shader::~Shader() {
@@ -102,6 +105,17 @@ bool Shader::loadProgram() {
     mPolygonColorLocation = glGetUniformLocation(mProgramID, "uColor");
     if (mPolygonColorLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "uColor");
+        return false;
+    }
+    mProjectionMatrixLocation = glGetUniformLocation(mProgramID, "uProjection");
+    if (mProjectionMatrixLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "uProjection");
+        return false;
+    }
+    mModelviewMatrixLocation = glGetUniformLocation(mProgramID, "uModelview");
+    if (mModelviewMatrixLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "uModelview");
+        return false;
     }
     return true;
 }
@@ -132,4 +146,28 @@ GLuint Shader::loadShaderFromFile(std::string path, GLenum shaderType) {
 
 void Shader::setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
     glUniform4f(mPolygonColorLocation, r, g, b, a);
+}
+
+void Shader::setProjection(glm::mat4 matrix) {
+    mProjection = matrix;
+}
+
+void Shader::setModelview(glm::mat4 matrix) {
+    mModelview = matrix;
+}
+
+void Shader::leftMultProjection(glm::mat4 matrix) {
+    mProjection = matrix * mProjection;
+}
+
+void Shader::leftMultModelview(glm::mat4 matrix) {
+    mModelview = matrix * mModelview;
+}
+
+void Shader::updateProjection() {
+    glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(mProjection));
+}
+
+void Shader::updateModelview() {
+    glUniformMatrix4fv(mModelviewMatrixLocation, 1, GL_FALSE, glm::value_ptr(mModelview));
 }

@@ -7,6 +7,9 @@
 #include <gl/GLU.h>
 #include <stdio.h>
 #include <string>
+#include <glm/glm.hpp>
+#include <glm/gtx/transform.hpp>
+
 #include "App.h"
 #include "Shader.h"
 
@@ -64,22 +67,40 @@ bool init(App& myApp) {
 
 bool initGL(App& myApp) {
     bool success = true;
+
+    // initialize viewport, color, texturing, etc
+    /*glViewport(0.0f, 0.0f, myApp.SCREEN_WIDTH, myApp.SCREEN_WIDTH);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
+
+    // load shader program
     success = myApp.myShader.loadProgram();
     if (!success) {
         printf("Shader initialization failed");
         return false;
     }
 
+    // initialize matrices
+    myApp.myShader.bind(); {
+        myApp.myShader.setProjection(glm::ortho<GLfloat>(0.0, myApp.SCREEN_WIDTH, myApp.SCREEN_HEIGHT, 0.0, 1.0, -1.0));
+        myApp.myShader.updateProjection();
+        myApp.myShader.setModelview(glm::mat4());
+        myApp.myShader.updateModelview();
+    } myApp.myShader.unbind();
+
     // define vertices buffer
     Pos2d quadVertices[4];
-    quadVertices[0].x = -0.5f;
-    quadVertices[0].y = -0.5f;
-    quadVertices[1].x = 0.5f;
-    quadVertices[1].y = -0.5f;
-    quadVertices[2].x = 0.5f;
-    quadVertices[2].y = 0.5f;
-    quadVertices[3].x = -0.5f;
-    quadVertices[3].y = 0.5f;
+    quadVertices[0].x = -50.0f;
+    quadVertices[0].y = -50.0f;
+    quadVertices[1].x = 50.0f;
+    quadVertices[1].y = -50.0f;
+    quadVertices[2].x = 50.0f;
+    quadVertices[2].y = 50.0f;
+    quadVertices[3].x = -50.0f;
+    quadVertices[3].y = 50.0f;
     glGenBuffers(1, &myApp.gVBO);
     glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Pos2d), quadVertices, GL_STATIC_DRAW);
@@ -119,18 +140,18 @@ void update() {
 
 void render(App& myApp) {
     glClear(GL_COLOR_BUFFER_BIT);
-    glLoadIdentity();
     if (myApp.gRenderQuad) {
-        glTranslatef(myApp.SCREEN_WIDTH / 2.0f, myApp.SCREEN_HEIGHT / 2.0f, 0.0f);
-        myApp.myShader.bind();
-        glEnableClientState(GL_VERTEX_ARRAY); {
-            glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
-            glVertexPointer(2, GL_FLOAT, 0, NULL);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
-            glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, NULL);
-        }
-        glDisableClientState(GL_VERTEX_ARRAY);
-        myApp.myShader.unbind();
+        myApp.myShader.bind(); {
+            myApp.myShader.setModelview(glm::translate<GLfloat>(glm::vec3(myApp.SCREEN_WIDTH / 2.0f, myApp.SCREEN_HEIGHT / 2.0f, 0.0f)));
+            myApp.myShader.updateModelview();
+            glEnableClientState(GL_VERTEX_ARRAY); {
+                glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
+                glVertexPointer(2, GL_FLOAT, 0, NULL);
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
+                glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, NULL);
+            }
+            glDisableClientState(GL_VERTEX_ARRAY);
+        } myApp.myShader.unbind();
     }
     SDL_GL_SwapWindow(myApp.gWindow);
 }
