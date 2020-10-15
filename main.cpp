@@ -18,6 +18,12 @@ void update();
 void render(App&);
 void close(App&);
 
+// convenient 2d point storage
+struct Pos2d {
+    GLfloat x;
+    GLfloat y;
+};
+
 bool init(App& myApp) {
     bool success = true;
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -63,26 +69,47 @@ bool initGL(App& myApp) {
         printf("Shader initialization failed");
         return false;
     }
-    /*glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    GLfloat vertexData[] = {
-        -0.5f, -0.5f,
-        0.5f, -0.5f,
-        0.5f, 0.5f,
-        -0.5f, 0.5f
-    };
-    GLuint indexData[] = {0, 1, 2, 3};
+
+    // define vertices buffer
+    Pos2d quadVertices[4];
+    quadVertices[0].x = -0.5f;
+    quadVertices[0].y = -0.5f;
+    quadVertices[1].x = 0.5f;
+    quadVertices[1].y = -0.5f;
+    quadVertices[2].x = 0.5f;
+    quadVertices[2].y = 0.5f;
+    quadVertices[3].x = -0.5f;
+    quadVertices[3].y = 0.5f;
     glGenBuffers(1, &myApp.gVBO);
     glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
-    glBufferData(GL_ARRAY_BUFFER, 2 * 4 * sizeof(GLfloat), vertexData, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Pos2d), quadVertices, GL_STATIC_DRAW);
+
+    // define index buffer
+    GLuint indices[4];
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 3;
     glGenBuffers(1, &myApp.gIBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indexData, GL_STATIC_DRAW);*/
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indices, GL_STATIC_DRAW);
+
     return success;
 }
 
 void handleKeys(App& myApp, unsigned char key, int x, int y) {
+    static int count = 0;
     if (key == 'q') {
         myApp.gRenderQuad= !myApp.gRenderQuad;
+    } else if (key == ' ') {
+        count = (count + 1) % 3;
+        myApp.myShader.bind();
+        myApp.myShader.setColor(
+            count == 0 ? 1.0 : 0.0,
+            count == 1 ? 1.0 : 0.0,
+            count == 2 ? 1.0 : 0.0
+        );
+        myApp.myShader.unbind();
     }
 }
 
@@ -94,16 +121,15 @@ void render(App& myApp) {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
     if (myApp.gRenderQuad) {
-        myApp.myShader.bind();
-        myApp.myShader.setColor(0.0f, 1.0f, 1.0f);
         glTranslatef(myApp.SCREEN_WIDTH / 2.0f, myApp.SCREEN_HEIGHT / 2.0f, 0.0f);
-        glBegin(GL_QUADS); {
-            glColor3f(0.0f, 1.0f, 1.0f);
-            glVertex2f(-0.5f, -0.5f);
-            glVertex2f(0.5f, -0.5f);
-            glVertex2f(0.5f, 0.5f);
-            glVertex2f(-0.5f, 0.5f);
-        } glEnd();
+        myApp.myShader.bind();
+        glEnableClientState(GL_VERTEX_ARRAY); {
+            glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
+            glVertexPointer(2, GL_FLOAT, 0, NULL);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
+            glDrawElements(GL_QUADS, 4, GL_UNSIGNED_INT, NULL);
+        }
+        glDisableClientState(GL_VERTEX_ARRAY);
         myApp.myShader.unbind();
     }
     SDL_GL_SwapWindow(myApp.gWindow);
