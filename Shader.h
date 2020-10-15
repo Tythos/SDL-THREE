@@ -21,10 +21,12 @@ public:
     void unbind();
     GLuint getProgramID();
     GLuint loadShaderFromFile(std::string path, GLenum shaderType);
+    void setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a=1.0f);
 protected:
     void printProgramLog(GLuint program);
     void printShaderLog(GLuint shader);
     GLuint mProgramID;
+    GLint mPolygonColorLocation;
 };
 
 #endif

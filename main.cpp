@@ -95,6 +95,7 @@ void render(App& myApp) {
     glLoadIdentity();
     if (myApp.gRenderQuad) {
         myApp.myShader.bind();
+        myApp.myShader.setColor(0.0f, 1.0f, 1.0f);
         glTranslatef(myApp.SCREEN_WIDTH / 2.0f, myApp.SCREEN_HEIGHT / 2.0f, 0.0f);
         glBegin(GL_QUADS); {
             glColor3f(0.0f, 1.0f, 1.0f);

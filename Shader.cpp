@@ -6,6 +6,7 @@
 
 Shader::Shader() {
     mProgramID = NULL;
+    mPolygonColorLocation = 0;
 }
 
 Shader::~Shader() {
@@ -70,30 +71,14 @@ void Shader::printShaderLog(GLuint shader) {
 bool Shader::loadProgram() {
     GLint programSuccess = GL_TRUE;
     mProgramID = glCreateProgram();
-    /*GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    const GLchar* vertexShaderSource[] = {
-        "void main() { gl_Position = gl_Vertex; }"
-    };
-    glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-    GLint vShaderCompiled = GL_FALSE;
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &vShaderCompiled);*/
-    GLuint vertexShader = loadShaderFromFile("bin/poly.v.glsl", GL_VERTEX_SHADER);
+    GLuint vertexShader = loadShaderFromFile("poly.v.glsl", GL_VERTEX_SHADER);
     if (vertexShader == 0) {
         glDeleteProgram(mProgramID);
         mProgramID = 0;
         return false;
     }
     glAttachShader(mProgramID, vertexShader);
-    /*GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    const GLchar* fragmentShaderSource[] = {
-        "void main() { gl_FragColor = vec4( 0.2, 0.4, 0.8, 1.0 ); }"
-    };
-    glShaderSource(fragmentShader, 1, fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-    GLint fShaderCompiled = GL_FALSE;
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &fShaderCompiled);*/
-    GLuint fragmentShader = loadShaderFromFile("bin/poly.f.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragmentShader = loadShaderFromFile("poly.f.glsl", GL_FRAGMENT_SHADER);
     if (fragmentShader == 0) {
         glDeleteShader(vertexShader);
         glDeleteProgram(mProgramID);
@@ -114,6 +99,10 @@ bool Shader::loadProgram() {
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    mPolygonColorLocation = glGetUniformLocation(mProgramID, "uColor");
+    if (mPolygonColorLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "uColor");
+    }
     return true;
 }
 
@@ -139,4 +128,8 @@ GLuint Shader::loadShaderFromFile(std::string path, GLenum shaderType) {
         printf("Unable to open file %s\n", path.c_str());
     }
     return shaderID;
+}
+
+void Shader::setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+    glUniform4f(mPolygonColorLocation, r, g, b, a);
 }
