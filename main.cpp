@@ -43,15 +43,22 @@ bool init(App& myApp) {
         printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
         success = false;
     } else {
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
         myApp.gWindow = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, myApp.SCREEN_WIDTH, myApp.SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
         if (myApp.gWindow == NULL) {
             printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
             success = false;
         } else {
+            // renderer vs context?
+            /*myApp.gRenderer = SDL_CreateRenderer(myApp.gWindow, 01, SDL_RENDERER_ACCELERATED);
+            if (myApp.gRenderer == NULL) {
+                printf("CreateRenderer error: %s\n", SDL_GetError());
+                return false;
+            }*/
+            
+            // continue with context
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
             myApp.gContext = SDL_GL_CreateContext(myApp.gWindow);
             if (myApp.gContext == NULL) {
                 printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
@@ -77,14 +84,6 @@ bool init(App& myApp) {
 
 bool initGL(App& myApp) {
     bool success = true;
-
-    // initialize viewport, color, texturing, etc
-    /*glViewport(0.0f, 0.0f, myApp.SCREEN_WIDTH, myApp.SCREEN_WIDTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 
     // load shader program
     success = myApp.myShader.loadProgram();
@@ -141,6 +140,8 @@ bool initGL(App& myApp) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
+    // load texture
+    myApp.loadTexture("bin/image.png");
     return success;
 }
 

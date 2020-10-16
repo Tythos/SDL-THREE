@@ -10,6 +10,7 @@
 #include <gl/GLU.h>
 #include <stdio.h>
 #include <string>
+#include <SDL_image.h>
 #include "Shader.h"
 
 class App {
@@ -17,6 +18,7 @@ public:
     const int SCREEN_WIDTH = 640;
     const int SCREEN_HEIGHT = 480;
     SDL_Window* gWindow = NULL;
+    SDL_Renderer* gRenderer = NULL;
     SDL_GLContext gContext;
     bool gRenderQuad = true;
     GLuint gProgramID = 0;
@@ -24,6 +26,8 @@ public:
     GLuint gVBO = 0;
     GLuint gIBO = 0;
     Shader myShader;
+    GLuint _textureId;
+    void loadTexture(std::string path);
 };
 
 #endif
