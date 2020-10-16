@@ -1,8 +1,9 @@
 /*
 */
 
-varying vec4 vMultiColor;
+uniform sampler2D uTextureUnit;
+varying vec2 vTexCoord;
 
 void main() {
-    gl_FragColor = vMultiColor;
+	gl_FragColor = texture(uTextureUnit, vTexCoord);
 }

@@ -8,9 +8,10 @@
 Shader::Shader() {
     mProgramID = NULL;
     mVertexPos2DLocation = 0;
-    mMultiColorLocation = 0;
+    mTexCoordLocation = 0;
     mProjectionMatrixLocation = 0;
     mModelviewMatrixLocation = 0;
+    mTextureUnitLocation = 0;
 }
 
 Shader::~Shader() {
@@ -109,9 +110,14 @@ bool Shader::loadProgram() {
         printf("%s is not a valid GLSL program variable!\n", "aPos2D");
         return false;
     }
-    mMultiColorLocation = glGetAttribLocation(mProgramID, "aMultiColor");
-    if (mMultiColorLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "aMultiColor");
+    mTexCoordLocation = glGetAttribLocation(mProgramID, "aTexCoord");
+    if (mTexCoordLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "aTexCoord");
+        return false;
+    }
+    mTextureUnitLocation = glGetUniformLocation(mProgramID, "uTextureUnit");
+    if (mTextureUnitLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "uTextureUnit");
         return false;
     }
     mProjectionMatrixLocation = glGetUniformLocation(mProgramID, "uProjection");
@@ -122,6 +128,11 @@ bool Shader::loadProgram() {
     mModelviewMatrixLocation = glGetUniformLocation(mProgramID, "uModelview");
     if (mModelviewMatrixLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "uModelview");
+        return false;
+    }
+    mTextureUnitLocation = glGetUniformLocation(mProgramID, "uTextureUnit");
+    if (mTextureUnitLocation == -1) {
+        printf("%s is not a valid GLSL program variable!\n", "uTextureUnit");
         return false;
     }
     return true;
@@ -179,8 +190,12 @@ void Shader::setVertexPointer(GLsizei stride, const GLvoid* data) {
     glVertexAttribPointer(mVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
 }
 
-void Shader::setColorPointer(GLsizei stride, const GLvoid* data) {
-    glVertexAttribPointer(mMultiColorLocation, 4, GL_FLOAT, GL_FALSE, stride, data);
+void Shader::setTexCoordPointer(GLsizei stride, const GLvoid* data) {
+    glVertexAttribPointer(mTexCoordLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
+}
+
+void Shader::setTextureUnit(GLuint unit) {
+    glUniform1i(mTextureUnitLocation, unit);
 }
 
 void Shader::enableVertexPointer() {
@@ -191,10 +206,10 @@ void Shader::disableVertexPointer() {
     glDisableVertexAttribArray(mVertexPos2DLocation);
 }
 
-void Shader::enableColorPointer() {
-    glEnableVertexAttribArray(mMultiColorLocation);
+void Shader::enableTexCoordPointer() {
+    glEnableVertexAttribArray(mTexCoordLocation);
 }
 
-void Shader::disableColorPointer() {
-    glDisableVertexAttribArray(mMultiColorLocation);
+void Shader::disableTexCoordPointer() {
+    glDisableVertexAttribArray(mTexCoordLocation);
 }

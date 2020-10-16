@@ -29,17 +29,19 @@ public:
     void updateProjection();
     void updateModelview();
     void setVertexPointer(GLsizei stride, const GLvoid* data);
-    void setColorPointer(GLsizei stride, const GLvoid* data);
+    void setTexCoordPointer(GLsizei stride, const GLvoid* data);
     void enableVertexPointer();
     void disableVertexPointer();
-    void enableColorPointer();
-    void disableColorPointer();
+    void enableTexCoordPointer();
+    void disableTexCoordPointer();
+    void setTextureUnit(GLuint unit);
 protected:
     void printProgramLog(GLuint program);
     void printShaderLog(GLuint shader);
     GLuint mProgramID;
     GLint mVertexPos2DLocation;
-    GLint mMultiColorLocation;
+    GLint mTexCoordLocation;
+    GLint mTextureUnitLocation;
     glm::mat4 mProjection;
     GLint mProjectionMatrixLocation;
     glm::mat4 mModelview;

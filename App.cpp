@@ -5,6 +5,7 @@
 
 void App::loadTexture(std::string path) {
     SDL_Surface* surface = IMG_Load(path.c_str());
+    glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &_textureId);
     glBindTexture(GL_TEXTURE_2D, _textureId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

@@ -32,9 +32,9 @@ struct ColorRGBA {
     GLfloat b;
     GLfloat a;
 };
-struct MultiColorVertex2D{
+struct MultiColorVertex2D {
     Pos2D pos;
-    ColorRGBA rgba;
+    Pos2D uv;
 };
 
 bool init(App& myApp) {
@@ -104,28 +104,20 @@ bool initGL(App& myApp) {
     MultiColorVertex2D quadVertices[4];
     quadVertices[0].pos.x = -50.0f;
     quadVertices[0].pos.y = -50.0f;
-    quadVertices[0].rgba.r = 1.0f;
-    quadVertices[0].rgba.g = 0.0f;
-    quadVertices[0].rgba.b = 0.0f;
-    quadVertices[0].rgba.a = 1.0f;
+    quadVertices[0].uv.x = 0.0f;
+    quadVertices[0].uv.y = 0.0f;
     quadVertices[1].pos.x = 50.0f;
     quadVertices[1].pos.y = -50.0f;
-    quadVertices[1].rgba.r = 1.0f;
-    quadVertices[1].rgba.g = 1.0f;
-    quadVertices[1].rgba.b = 0.0f;
-    quadVertices[1].rgba.a = 1.0f;
+    quadVertices[1].uv.x = 1.0f;
+    quadVertices[1].uv.y = 0.0f;
     quadVertices[2].pos.x = 50.0f;
     quadVertices[2].pos.y = 50.0f;
-    quadVertices[2].rgba.r = 0.0f;
-    quadVertices[2].rgba.g = 1.0f;
-    quadVertices[2].rgba.b = 0.0f;
-    quadVertices[2].rgba.a = 1.0f;
+    quadVertices[2].uv.x = 1.0f;
+    quadVertices[2].uv.y = 1.0f;
     quadVertices[3].pos.x = -50.0f;
     quadVertices[3].pos.y = 50.0f;
-    quadVertices[3].rgba.r = 0.0f;
-    quadVertices[3].rgba.g = 0.0f;
-    quadVertices[3].rgba.b = 1.0f;
-    quadVertices[3].rgba.a = 1.0f;
+    quadVertices[3].uv.x = 0.0f;
+    quadVertices[3].uv.y = 1.0f;
     glGenBuffers(1, &myApp.gVBO);
     glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(MultiColorVertex2D), quadVertices, GL_STATIC_DRAW);
@@ -162,15 +154,15 @@ void render(App& myApp) {
             myApp.myShader.setModelview(glm::translate<GLfloat>(glm::vec3(myApp.SCREEN_WIDTH / 2.0f, myApp.SCREEN_HEIGHT / 2.0f, 0.0f)));
             myApp.myShader.updateModelview();
             myApp.myShader.enableVertexPointer();
-            myApp.myShader.enableColorPointer(); {
+            myApp.myShader.enableTexCoordPointer(); {
                 glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
                 myApp.myShader.setVertexPointer(sizeof(MultiColorVertex2D), (GLvoid*)offsetof(MultiColorVertex2D, pos));
-                myApp.myShader.setColorPointer(sizeof(MultiColorVertex2D), (GLvoid*)offsetof(MultiColorVertex2D, rgba));
+                myApp.myShader.setTexCoordPointer(sizeof(MultiColorVertex2D), (GLvoid*)offsetof(MultiColorVertex2D, uv));
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
                 glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);
             }
+            myApp.myShader.disableTexCoordPointer();
             myApp.myShader.disableVertexPointer();
-            myApp.myShader.disableColorPointer();
         } myApp.myShader.unbind();
     }
     SDL_GL_SwapWindow(myApp.gWindow);
