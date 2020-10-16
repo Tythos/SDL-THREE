@@ -18,7 +18,7 @@ public:
     ~Shader();
     bool loadProgram();
     void freeProgram();
-    bool bind();
+    bool bind(GLuint mTextureID);
     void unbind();
     GLuint getProgramID();
     GLuint loadShaderFromFile(std::string path, GLenum shaderType);

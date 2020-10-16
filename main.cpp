@@ -48,14 +48,6 @@ bool init(App& myApp) {
             printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
             success = false;
         } else {
-            // renderer vs context?
-            /*myApp.gRenderer = SDL_CreateRenderer(myApp.gWindow, 01, SDL_RENDERER_ACCELERATED);
-            if (myApp.gRenderer == NULL) {
-                printf("CreateRenderer error: %s\n", SDL_GetError());
-                return false;
-            }*/
-            
-            // continue with context
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
             SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -92,14 +84,6 @@ bool initGL(App& myApp) {
         return false;
     }
 
-    // initialize matrices
-    myApp.myShader.bind(); {
-        myApp.myShader.setProjection(glm::ortho<GLfloat>(0.0, myApp.SCREEN_WIDTH, myApp.SCREEN_HEIGHT, 0.0, 1.0, -1.0));
-        myApp.myShader.updateProjection();
-        myApp.myShader.setModelview(glm::mat4());
-        myApp.myShader.updateModelview();
-    } myApp.myShader.unbind();
-
     // define vertices buffer
     MultiColorVertex2D quadVertices[4];
     quadVertices[0].pos.x = -50.0f;
@@ -133,7 +117,17 @@ bool initGL(App& myApp) {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
     // load texture
-    myApp.loadTexture("bin/image.png");
+    myApp.loadTexture("bin/image.png"); // also assigns GL texture ID to _textureId
+
+    // initialize shader uniforms
+    myApp.myShader.bind(myApp._textureId); {
+        myApp.myShader.setProjection(glm::ortho<GLfloat>(0.0, myApp.SCREEN_WIDTH, myApp.SCREEN_HEIGHT, 0.0, 1.0, -1.0));
+        myApp.myShader.updateProjection();
+        myApp.myShader.setModelview(glm::mat4());
+        myApp.myShader.updateModelview();
+        myApp.myShader.setTextureUnit(0);
+    } myApp.myShader.unbind();
+
     return success;
 }
 
@@ -150,19 +144,15 @@ void update() {
 void render(App& myApp) {
     glClear(GL_COLOR_BUFFER_BIT);
     if (myApp.gRenderQuad) {
-        myApp.myShader.bind(); {
+        myApp.myShader.bind(myApp._textureId); {
             myApp.myShader.setModelview(glm::translate<GLfloat>(glm::vec3(myApp.SCREEN_WIDTH / 2.0f, myApp.SCREEN_HEIGHT / 2.0f, 0.0f)));
-            myApp.myShader.updateModelview();
-            myApp.myShader.enableVertexPointer();
-            myApp.myShader.enableTexCoordPointer(); {
+            myApp.myShader.updateModelview(); {
                 glBindBuffer(GL_ARRAY_BUFFER, myApp.gVBO);
                 myApp.myShader.setVertexPointer(sizeof(MultiColorVertex2D), (GLvoid*)offsetof(MultiColorVertex2D, pos));
                 myApp.myShader.setTexCoordPointer(sizeof(MultiColorVertex2D), (GLvoid*)offsetof(MultiColorVertex2D, uv));
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, myApp.gIBO);
                 glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_INT, NULL);
             }
-            myApp.myShader.disableTexCoordPointer();
-            myApp.myShader.disableVertexPointer();
         } myApp.myShader.unbind();
     }
     SDL_GL_SwapWindow(myApp.gWindow);

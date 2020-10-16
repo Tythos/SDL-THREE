@@ -22,7 +22,7 @@ void Shader::freeProgram() {
     glDeleteProgram(mProgramID);
 }
 
-bool Shader::bind() {
+bool Shader::bind(GLuint mTextureID) {
     glUseProgram(mProgramID);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -30,10 +30,16 @@ bool Shader::bind() {
         printProgramLog(mProgramID);
         return false;
     }
+    enableVertexPointer();
+    enableTexCoordPointer();
+    glBindTexture(GL_TEXTURE_2D, mTextureID);
     return true;
 }
 
 void Shader::unbind() {
+    disableTexCoordPointer();
+    disableVertexPointer();
+    glBindTexture(GL_TEXTURE_2D, NULL);
     glUseProgram(NULL);
 }
 
