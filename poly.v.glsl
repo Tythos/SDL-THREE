@@ -3,7 +3,7 @@
 
 uniform mat4 uProjection;
 uniform mat4 uModelview;
-attribute vec2 aPos2D;
+attribute vec3 aPos2D;
 attribute vec2 aTexCoord;
 varying vec2 vTexCoord;
 

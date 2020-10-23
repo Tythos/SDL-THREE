@@ -11,10 +11,6 @@ link.exe /nologo /SUBSYSTEM:CONSOLE /OUT:"bin/main.exe" ^
   GlU32.lib ^
   glew32d.lib ^
   SDL2_image.lib ^
-  obj/Camera.obj ^
-  obj/Geometry.obj ^
-  obj/Material.obj ^
-  obj/Mesh.obj ^
-  obj/Renderer.obj ^
-  obj/Scene.obj ^
-  obj/main.obj
+  obj/App.obj ^
+  obj/main.obj ^
+  obj/Mesh.obj

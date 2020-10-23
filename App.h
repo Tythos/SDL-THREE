@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <string>
 #include <SDL_image.h>
+#include "Mesh.h"
 
 class App {
 public:
@@ -23,7 +24,7 @@ public:
     GLint gVertexPos2DLocation = -1;
     GLuint gVBO = 0;
     GLuint gIBO = 0;
-    Shader myShader;
+    Mesh myMesh;
     GLuint _textureId;
     void loadTexture(std::string path);
 };
