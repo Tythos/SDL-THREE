@@ -25,11 +25,11 @@ public:
     void pushFrame();
     void popFrame();
     bool isVisible = true;
-protected:
     glm::mat4* frame = NULL;
     Geometry* geometry = NULL;
     Material* material = NULL;
     std::vector<Mesh*> children;
+protected:
 private:
 };
 

@@ -11,7 +11,6 @@
 #include <stdio.h>
 #include <string>
 #include <SDL_image.h>
-#include "Shader.h"
 
 class App {
 public:

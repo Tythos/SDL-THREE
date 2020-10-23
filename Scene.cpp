@@ -10,30 +10,26 @@ Scene::Scene() {
     vertices[0].xyz.x = -1.0f;
     vertices[0].xyz.y = -1.0f;
     vertices[0].xyz.z = 0.0f;
-    vertices[0].rgb.r = 0.0f;
-    vertices[0].rgb.g = 0.0f;
-    vertices[0].rgb.b = 0.0f;
+    vertices[0].uv.u = 0.0f;
+    vertices[0].uv.v = 0.0f;
     // lower-right
     vertices[1].xyz.x = 1.0f;
     vertices[1].xyz.y = -1.0f;
     vertices[1].xyz.z = 0.0f;
-    vertices[1].rgb.r = 1.0f;
-    vertices[1].rgb.g = 0.0f;
-    vertices[1].rgb.b = 0.0f;
+    vertices[1].uv.u = 1.0f;
+    vertices[1].uv.v = 0.0f;
     // upper-right
     vertices[2].xyz.x = 1.0f;
     vertices[2].xyz.y = 1.0f;
     vertices[2].xyz.z = 0.0f;
-    vertices[2].rgb.r = 1.0f;
-    vertices[2].rgb.g = 1.0f;
-    vertices[2].rgb.b = 0.0f;
+    vertices[2].uv.u = 1.0f;
+    vertices[2].uv.v = 1.0f;
     // upper-left
     vertices[3].xyz.x = -1.0f;
     vertices[3].xyz.y = 1.0f;
     vertices[3].xyz.z = 0.0f;
-    vertices[3].rgb.r = 0.0f;
-    vertices[3].rgb.g = 1.0f;
-    vertices[3].rgb.b = 0.0f;
+    vertices[3].uv.u = 0.0f;
+    vertices[3].uv.v = 1.0f;
 
     // bind data to vertex buffer object
     glGenBuffers(1, &this->hVBO);
@@ -56,5 +52,13 @@ Scene::Scene() {
 }
 
 Scene::~Scene() {
+    /*
+    */
+}
 
+void Scene::setVertexPointers() {
+    /*
+    */
+    this->material->setVertexPointer(sizeof(VertexFormat), (GLvoid*)offsetof(VertexFormat, xyz));
+    this->material->setTexCoordPointer(sizeof(VertexFormat), (GLvoid*)offsetof(VertexFormat, uv));
 }

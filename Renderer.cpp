@@ -3,6 +3,7 @@
 
 #include "Renderer.h"
 #include "Logger.h"
+#include <glm/gtx/transform.hpp>
 
 Renderer::Renderer() {
     int result = 0;
@@ -53,14 +54,14 @@ void Renderer::render(Scene* scene, Camera* camera) {
     */
     glClear(GL_COLOR_BUFFER_BIT);
     if (scene->isVisible) {
-        scene->material.bind(); {
-            scene->material->setModelview(glm::translate<GLfloat>(glm::vec3(w, h, 0)));
+        scene->material->bind(); {
+            scene->material->setModelview(glm::translate<GLfloat>(glm::vec3(screenWidth, screenHeight, 0)));
             scene->material->updateModelview();
             glBindBuffer(GL_ARRAY_BUFFER, scene->hVBO);
-            scene->setVertexAttributes();
-            glBindBiuffer(GL_ELEMENT_ARRAY_BUFFER, scene->hIBO);
+            scene->setVertexPointers();
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, scene->hIBO);
             glDrawElements(GL_TRIANGLE_FAN, 6, GL_UNSIGNED_INT, NULL);
-        } scene->material.unbind();
+        } scene->material->unbind();
     }
     SDL_GL_SwapWindow(this->window);
 }
