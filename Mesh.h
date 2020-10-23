@@ -11,6 +11,25 @@
 #include <stdio.h>
 #include <string>
 #include <glm/glm.hpp>
+#include <fstream>
+#include <glm/gtc/type_ptr.hpp>
+#include <SDL_image.h>
+
+// convenient 2d point storage
+struct Pos2D {
+    GLfloat x;
+    GLfloat y;
+};
+struct ColorRGBA {
+    GLfloat r;
+    GLfloat g;
+    GLfloat b;
+    GLfloat a;
+};
+struct MultiColorVertex2D {
+    Pos2D pos;
+    Pos2D uv;
+};
 
 class Mesh {
 public:
@@ -35,7 +54,6 @@ public:
     void enableTexCoordPointer();
     void disableTexCoordPointer();
     void setTextureUnit(GLuint unit);
-protected:
     void printProgramLog(GLuint program);
     void printShaderLog(GLuint shader);
     GLuint mProgramID;
@@ -46,6 +64,14 @@ protected:
     GLint mProjectionMatrixLocation;
     glm::mat4 mModelview;
     GLint mModelviewMatrixLocation;
+    bool gRenderQuad = true;
+    GLuint gProgramID = 0;
+    GLint gVertexPos2DLocation = -1;
+    GLuint gVBO = 0;
+    GLuint gIBO = 0;
+    GLuint _textureId;
+    void loadTexture(std::string path);
+protected:
 };
 
 #endif

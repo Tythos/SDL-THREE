@@ -2,8 +2,6 @@
 */
 
 #include "Mesh.h"
-#include <fstream>
-#include <glm/gtc/type_ptr.hpp>
 
 Mesh::Mesh() {
     mProgramID = NULL;
@@ -218,4 +216,16 @@ void Mesh::enableTexCoordPointer() {
 
 void Mesh::disableTexCoordPointer() {
     glDisableVertexAttribArray(mTexCoordLocation);
+}
+
+void Mesh::loadTexture(std::string path) {
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(1, &_textureId);
+    glBindTexture(GL_TEXTURE_2D, _textureId);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, NULL);
+    printf("texture %u, surface formats bbp: %u\n", _textureId, surface->format->BytesPerPixel);
 }
