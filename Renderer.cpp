@@ -9,27 +9,32 @@ Renderer::Renderer() {
     /*
     */
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
+        LOGGER.informational("SDL could not initialize! SDL Error:");
+        LOGGER.error(SDL_GetError());
     }
     _window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, _screenWidth, _screenHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (_window == NULL) {
-        printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
+        LOGGER.informational("Window could not be created! SDL Error:");
+        LOGGER.error(SDL_GetError());
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     _context = SDL_GL_CreateContext(_window);
     if (_context == NULL) {
-        printf("OpenGL context could not be created! SDL Error: %s\n", SDL_GetError());
+        LOGGER.informational("OpenGL context could not be created! SDL Error:");
+        LOGGER.error(SDL_GetError());
     }
     glewExperimental = GL_TRUE;
     GLenum glewError = glewInit();
     if (glewError != GLEW_OK) {
-        printf("Error initializing GLEW! %s\n", glewGetErrorString(glewError));
+        LOGGER.informational("Error initializing GLEW! Error message:");
+        LOGGER.error(SDL_GetError());
     }
     int swapResult = SDL_GL_SetSwapInterval(1);
     if (swapResult < 0) {
-        printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
+        LOGGER.informational("Warning: Unable to set VSync! SDL Error:");
+        LOGGER.error(SDL_GetError());
     }
 }
 

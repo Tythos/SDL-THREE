@@ -30,15 +30,20 @@ bool update(Scene* myScene) {
 }
 
 int main(int nArgs, char** vArgs) {
+    LOGGER.informational("initializing...");
     Scene* myScene = new Scene();
     Camera* myCamera = new Camera();
     Renderer* myRenderer = new Renderer();
+
+    LOGGER.informational("looping...");
     bool quit = false;
     SDL_StartTextInput();
     while (!quit) {
         quit = update(myScene);
         myRenderer->render(myScene, myCamera);
     }
+
+    LOGGER.informational("shutting down...");
     SDL_StopTextInput();
     delete myRenderer;
     delete myCamera;

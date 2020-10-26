@@ -8,6 +8,9 @@
 #include <stdexcept>
 #include <string>
 
+#ifndef LOGGER_H
+#define LOGGER_H
+
 enum SysLogSeverity {
     SLS_DEBUG,
     SLS_INFORMATIONAL,
@@ -70,4 +73,6 @@ protected:
 private:
 };
 
-Logger LOGGER;
+static Logger LOGGER;
+
+#endif

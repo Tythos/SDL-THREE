@@ -6,12 +6,13 @@
 #ifndef SDLTHREE_CAMERA_H
 #define SDLTHREE_CAMERA_H
 
-#include <stdio.h>
 #include <SDL.h>
 #include <gl/glew.h>
 #include <SDL_opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "Logger.h"
 
 class Camera {
 public:

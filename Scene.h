@@ -8,12 +8,13 @@
 #include <gl/glew.h>
 #include <SDL_opengl.h>
 #include <gl/GLU.h>
-#include <stdio.h>
 #include <string>
 #include <glm/glm.hpp>
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <SDL_image.h>
+
+#include "Logger.h"
 
 // convenient 2d point storage
 struct Pos2D {
@@ -41,11 +42,8 @@ public:
     void unbind();
     GLuint getProgramID();
     GLuint loadShaderFromFile(std::string path, GLenum shaderType);
-    void setProjection(glm::mat4 matrix);
     void setModelview(glm::mat4 matrix);
-    void leftMultProjection(glm::mat4 matrix);
     void leftMultModelview(glm::mat4 matrix);
-    void updateProjection();
     void updateModelview();
     void setVertexPointer(GLsizei stride, const GLvoid* data);
     void setTexCoordPointer(GLsizei stride, const GLvoid* data);

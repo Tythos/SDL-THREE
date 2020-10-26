@@ -137,11 +137,12 @@ void Scene::printProgramLog(GLuint program) {
         char* infoLog = new char[maxLength];
         glGetProgramInfoLog(program, maxLength, &infoLogLength, infoLog);
         if (infoLogLength > 0) {
-            printf("%s\n", infoLog);
+            LOGGER.informational("GLSL program log:");
+            LOGGER.informational(infoLog);
         }
         delete[] infoLog;
     } else {
-        printf("Name %d is not a program\n", program);
+        LOGGER.error("Given name/ID is not a valid GLSL program");
     }
 }
 
@@ -153,11 +154,12 @@ void Scene::printShaderLog(GLuint shader) {
         char* infoLog = new char[maxLength];
         glGetShaderInfoLog(shader, maxLength, &infoLogLength, infoLog);
         if (infoLogLength > 0) {
-            printf("%s\n", infoLog);
+            LOGGER.informational("GLSL shader log:");
+            LOGGER.informational(infoLog);
         }
         delete[] infoLog;
     } else {
-        printf("Name %d is not a shader\n", shader);
+        LOGGER.error("Given name/ID is not a valid GLSL shader");
     }
 }
 
@@ -195,28 +197,19 @@ bool Scene::loadProgram() {
 
     _vertexPos2DLocation = glGetAttribLocation(_programID, "aPos2D");
     if (_vertexPos2DLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "aPos2D");
-        return false;
+        LOGGER.error("'aPos2D' could not be resolved as a valid GLSL program variable");
     }
     _texCoordLocation = glGetAttribLocation(_programID, "aTexCoord");
     if (_texCoordLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "aTexCoord");
-        return false;
+        LOGGER.error("'aTexCoord' could not be resolved as a valid GLSL program variable");
     }
     _textureUnitLocation = glGetUniformLocation(_programID, "uTextureUnit");
     if (_textureUnitLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "uTextureUnit");
-        return false;
+        LOGGER.error("'uTextureUnit' could not be resolved as a valid GLSL program variable");
     }
     _modelviewMatrixLocation = glGetUniformLocation(_programID, "uModelview");
     if (_modelviewMatrixLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "uModelview");
-        return false;
-    }
-    _textureUnitLocation = glGetUniformLocation(_programID, "uTextureUnit");
-    if (_textureUnitLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "uTextureUnit");
-        return false;
+        LOGGER.error("'uModelview' could not be resolved as a valid GLSL program variable");
     }
     return true;
 }
@@ -234,13 +227,14 @@ GLuint Scene::loadShaderFromFile(std::string path, GLenum shaderType) {
         GLint shaderCompiled = GL_FALSE;
         glGetShaderiv(shaderID, GL_COMPILE_STATUS, &shaderCompiled);
         if (shaderCompiled != GL_TRUE) {
-            printf("Unable to compile shader %d!\n\nSource:\n%s\n", shaderID, shaderSource);
+            LOGGER.informational("An error occured while compiling a GLSL shader from source file");
             printShaderLog(shaderID);
             glDeleteShader(shaderID);
             shaderID = 0;
         }
     } else {
-        printf("Unable to open file %s\n", path.c_str());
+        LOGGER.informational("Unable to open shader source file; does the following file exist?");
+        LOGGER.error(path.c_str());
     }
     return shaderID;
 }
@@ -294,5 +288,4 @@ void Scene::loadTexture(std::string path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, NULL);
-    printf("texture %u, surface formats bbp: %u\n", _textureId, surface->format->BytesPerPixel);
 }
