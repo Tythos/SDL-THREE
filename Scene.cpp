@@ -1,26 +1,75 @@
 /*
 */
 
-#include "Mesh.h"
+#include "Scene.h"
 
-Mesh::Mesh() {
+Scene::Scene() {
     mProgramID = NULL;
     mVertexPos2DLocation = 0;
     mTexCoordLocation = 0;
     mProjectionMatrixLocation = 0;
     mModelviewMatrixLocation = 0;
     mTextureUnitLocation = 0;
+
+    // load mesh
+    bool success = loadProgram();
+    if (!success) {
+        printf("Mesh initialization failed");
+    }
+
+    // define vertices buffer
+    MultiColorVertex2D quadVertices[4];
+    quadVertices[0].pos.x = -50.0f;
+    quadVertices[0].pos.y = -50.0f;
+    quadVertices[0].uv.x = 0.0f;
+    quadVertices[0].uv.y = 0.0f;
+    quadVertices[1].pos.x = 50.0f;
+    quadVertices[1].pos.y = -50.0f;
+    quadVertices[1].uv.x = 1.0f;
+    quadVertices[1].uv.y = 0.0f;
+    quadVertices[2].pos.x = 50.0f;
+    quadVertices[2].pos.y = 50.0f;
+    quadVertices[2].uv.x = 1.0f;
+    quadVertices[2].uv.y = 1.0f;
+    quadVertices[3].pos.x = -50.0f;
+    quadVertices[3].pos.y = 50.0f;
+    quadVertices[3].uv.x = 0.0f;
+    quadVertices[3].uv.y = 1.0f;
+    glGenBuffers(1, &gVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(MultiColorVertex2D), quadVertices, GL_STATIC_DRAW);
+
+    // define index buffer
+    GLuint indices[4];
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 3;
+    glGenBuffers(1, &gIBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indices, GL_STATIC_DRAW);
+
+    // load texture
+    loadTexture("bin/image.png"); // also assigns GL texture ID to _textureId
+
+    // initialize mesh's shader uniforms
+    bind(_textureId); {
+        setModelview(glm::mat4());
+        updateModelview();
+        setTextureUnit(0);
+    } unbind();
 }
 
-Mesh::~Mesh() {
+Scene::~Scene() {
     freeProgram();
+    glDeleteProgram(getProgramID());
 }
 
-void Mesh::freeProgram() {
+void Scene::freeProgram() {
     glDeleteProgram(mProgramID);
 }
 
-bool Mesh::bind(GLuint mTextureID) {
+bool Scene::bind(GLuint mTextureID) {
     glUseProgram(mProgramID);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -34,18 +83,18 @@ bool Mesh::bind(GLuint mTextureID) {
     return true;
 }
 
-void Mesh::unbind() {
+void Scene::unbind() {
     disableTexCoordPointer();
     disableVertexPointer();
     glBindTexture(GL_TEXTURE_2D, NULL);
     glUseProgram(NULL);
 }
 
-GLuint Mesh::getProgramID() {
+GLuint Scene::getProgramID() {
     return mProgramID;
 }
 
-void Mesh::printProgramLog(GLuint program) {
+void Scene::printProgramLog(GLuint program) {
     if (glIsProgram(program)) {
         int infoLogLength = 0;
         int maxLength = infoLogLength;
@@ -61,7 +110,7 @@ void Mesh::printProgramLog(GLuint program) {
     }
 }
 
-void Mesh::printShaderLog(GLuint shader) {
+void Scene::printShaderLog(GLuint shader) {
     if (glIsShader(shader)) {
         int infoLogLength = 0;
         int maxLength = infoLogLength;
@@ -77,7 +126,7 @@ void Mesh::printShaderLog(GLuint shader) {
     }
 }
 
-bool Mesh::loadProgram() {
+bool Scene::loadProgram() {
     GLint programSuccess = GL_TRUE;
     mProgramID = glCreateProgram();
     GLuint vertexShader = loadShaderFromFile("poly.v.glsl", GL_VERTEX_SHADER);
@@ -142,7 +191,7 @@ bool Mesh::loadProgram() {
     return true;
 }
 
-GLuint Mesh::loadShaderFromFile(std::string path, GLenum shaderType) {
+GLuint Scene::loadShaderFromFile(std::string path, GLenum shaderType) {
     GLuint shaderID = 0;
     std::string shaderString;
     std::ifstream sourceFile(path.c_str());
@@ -166,59 +215,59 @@ GLuint Mesh::loadShaderFromFile(std::string path, GLenum shaderType) {
     return shaderID;
 }
 
-void Mesh::setProjection(glm::mat4 matrix) {
+void Scene::setProjection(glm::mat4 matrix) {
     mProjection = matrix;
 }
 
-void Mesh::setModelview(glm::mat4 matrix) {
+void Scene::setModelview(glm::mat4 matrix) {
     mModelview = matrix;
 }
 
-void Mesh::leftMultProjection(glm::mat4 matrix) {
+void Scene::leftMultProjection(glm::mat4 matrix) {
     mProjection = matrix * mProjection;
 }
 
-void Mesh::leftMultModelview(glm::mat4 matrix) {
+void Scene::leftMultModelview(glm::mat4 matrix) {
     mModelview = matrix * mModelview;
 }
 
-void Mesh::updateProjection() {
+void Scene::updateProjection() {
     glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(mProjection));
 }
 
-void Mesh::updateModelview() {
+void Scene::updateModelview() {
     glUniformMatrix4fv(mModelviewMatrixLocation, 1, GL_FALSE, glm::value_ptr(mModelview));
 }
 
-void Mesh::setVertexPointer(GLsizei stride, const GLvoid* data) {
+void Scene::setVertexPointer(GLsizei stride, const GLvoid* data) {
     glVertexAttribPointer(mVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
 }
 
-void Mesh::setTexCoordPointer(GLsizei stride, const GLvoid* data) {
+void Scene::setTexCoordPointer(GLsizei stride, const GLvoid* data) {
     glVertexAttribPointer(mTexCoordLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
 }
 
-void Mesh::setTextureUnit(GLuint unit) {
+void Scene::setTextureUnit(GLuint unit) {
     glUniform1i(mTextureUnitLocation, unit);
 }
 
-void Mesh::enableVertexPointer() {
+void Scene::enableVertexPointer() {
     glEnableVertexAttribArray(mVertexPos2DLocation);
 }
 
-void Mesh::disableVertexPointer() {
+void Scene::disableVertexPointer() {
     glDisableVertexAttribArray(mVertexPos2DLocation);
 }
 
-void Mesh::enableTexCoordPointer() {
+void Scene::enableTexCoordPointer() {
     glEnableVertexAttribArray(mTexCoordLocation);
 }
 
-void Mesh::disableTexCoordPointer() {
+void Scene::disableTexCoordPointer() {
     glDisableVertexAttribArray(mTexCoordLocation);
 }
 
-void Mesh::loadTexture(std::string path) {
+void Scene::loadTexture(std::string path) {
     SDL_Surface* surface = IMG_Load(path.c_str());
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &_textureId);

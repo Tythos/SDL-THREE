@@ -12,14 +12,20 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <glm/gtx/transform.hpp>
-#include "App.h"
+#include "Camera.h"
+#include "Scene.h"
 
 class Renderer {
 public:
-    bool init(App& myApp);
-    bool initGL(App& myApp);
-    void render(App& myApp);
-    void close(App& myApp);
+    Renderer();
+    ~Renderer();
+    bool init();
+    void render(Scene& myScene, Camera& myCamera);
+    void close();
+    const int SCREEN_WIDTH = 640;
+    const int SCREEN_HEIGHT = 480;
+    SDL_Window* gWindow = NULL;
+    SDL_GLContext gContext;
 protected:
 private:
 };

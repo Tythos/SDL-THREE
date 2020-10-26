@@ -1,8 +1,8 @@
 /*
 */
 
-#ifndef MY_MESH_H
-#define MY_MESH_H
+#ifndef MY_SCENE_H
+#define MY_SCENE_H
 
 #include <SDL.h>
 #include <gl/glew.h>
@@ -31,10 +31,10 @@ struct MultiColorVertex2D {
     Pos2D uv;
 };
 
-class Mesh {
+class Scene {
 public:
-    Mesh();
-    ~Mesh();
+    Scene();
+    ~Scene();
     bool loadProgram();
     void freeProgram();
     bool bind(GLuint mTextureID);
