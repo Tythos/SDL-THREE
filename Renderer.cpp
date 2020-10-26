@@ -46,9 +46,7 @@ void Renderer::render(Scene& myScene, Camera& myCamera) {
     if (myScene.gRenderQuad) {
         myScene.bind(myScene._textureId); {
             // update projection matrix from camera, modelview matrix from scene
-            myCamera.mProjectionMatrixLocation = glGetUniformLocation(myScene.mProgramID, "uProjection");
-            myCamera.setProjection(glm::ortho<GLfloat>(0.0, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0, 1.0, -1.0));
-            myCamera.updateProjection();
+            myCamera.assertProjection(myScene.mProgramID, SCREEN_WIDTH, SCREEN_HEIGHT);
             myScene.setModelview(glm::translate<GLfloat>(glm::vec3(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f, 0.0f)));
             myScene.updateModelview(); {
                 glBindBuffer(GL_ARRAY_BUFFER, myScene.gVBO);

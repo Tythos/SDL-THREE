@@ -18,6 +18,7 @@ public:
     void setProjection(glm::mat4 matrix);
     void leftMultProjection(glm::mat4 matrix);
     void updateProjection();
+    void assertProjection(GLuint programID, int width, int height);
     glm::mat4 mProjection;
     GLint mProjectionMatrixLocation;
 protected:

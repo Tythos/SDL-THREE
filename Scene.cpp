@@ -10,14 +10,29 @@ Scene::Scene() {
     mProjectionMatrixLocation = 0;
     mModelviewMatrixLocation = 0;
     mTextureUnitLocation = 0;
+    isGlBound = false;
+    gVBO = 0;
+    gIBO = 0;
+    gVertexPos2DLocation = -1;
+    gProgramID = 0;
+    gRenderQuad = true;
 }
 
-void Scene::init() {
-    // load mesh
-    bool success = loadProgram();
-    if (!success) {
-        printf("Mesh initialization failed");
-    }
+Scene::~Scene() {
+    freeProgram();
+    glDeleteProgram(getProgramID());
+}
+
+void Scene::freeProgram() {
+    glDeleteProgram(mProgramID);
+}
+
+void Scene::createGlBindings() {
+    /* we can't necessarily create things like buffer object handles at
+       initialization, in case the renderer hasn't set up the GL context yet
+       (calls will silently fail); so, we delay those actions until bind() is
+       called, which checks to see if they've been created yet.
+    */
 
     // define vertices buffer
     MultiColorVertex2D quadVertices[4];
@@ -51,27 +66,24 @@ void Scene::init() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
-    // load texture
+    // load actual shader program
+    bool success = loadProgram();
+    if (!success) {
+        printf("Mesh initialization failed");
+    }
+
+    // load texture, initialize uniforms
     loadTexture("bin/image.png"); // also assigns GL texture ID to _textureId
-
-    // initialize mesh's shader uniforms
-    bind(_textureId); {
-        setModelview(glm::mat4());
-        updateModelview();
-        setTextureUnit(0);
-    } unbind();
-}
-
-Scene::~Scene() {
-    freeProgram();
-    glDeleteProgram(getProgramID());
-}
-
-void Scene::freeProgram() {
-    glDeleteProgram(mProgramID);
+    isGlBound = true; // careful not to recurse
 }
 
 bool Scene::bind(GLuint mTextureID) {
+    // check to see if the gl data has been bound yet
+    if (!isGlBound) {
+        createGlBindings();
+    }
+
+    // continue using/binding handles
     glUseProgram(mProgramID);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
@@ -131,14 +143,14 @@ void Scene::printShaderLog(GLuint shader) {
 bool Scene::loadProgram() {
     GLint programSuccess = GL_TRUE;
     mProgramID = glCreateProgram();
-    GLuint vertexShader = loadShaderFromFile("poly.v.glsl", GL_VERTEX_SHADER);
+    GLuint vertexShader = loadShaderFromFile("bin/poly.v.glsl", GL_VERTEX_SHADER);
     if (vertexShader == 0) {
         glDeleteProgram(mProgramID);
         mProgramID = 0;
         return false;
     }
     glAttachShader(mProgramID, vertexShader);
-    GLuint fragmentShader = loadShaderFromFile("poly.f.glsl", GL_FRAGMENT_SHADER);
+    GLuint fragmentShader = loadShaderFromFile("bin/poly.f.glsl", GL_FRAGMENT_SHADER);
     if (fragmentShader == 0) {
         glDeleteShader(vertexShader);
         glDeleteProgram(mProgramID);

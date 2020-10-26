@@ -35,7 +35,6 @@ class Scene {
 public:
     Scene();
     ~Scene();
-    void init();
     bool loadProgram();
     void freeProgram();
     bool bind(GLuint mTextureID);
@@ -57,6 +56,8 @@ public:
     void setTextureUnit(GLuint unit);
     void printProgramLog(GLuint program);
     void printShaderLog(GLuint shader);
+    void loadTexture(std::string path);
+    void createGlBindings();
     GLuint mProgramID;
     GLint mVertexPos2DLocation;
     GLint mTexCoordLocation;
@@ -65,13 +66,13 @@ public:
     GLint mProjectionMatrixLocation;
     glm::mat4 mModelview;
     GLint mModelviewMatrixLocation;
-    bool gRenderQuad = true;
-    GLuint gProgramID = 0;
-    GLint gVertexPos2DLocation = -1;
-    GLuint gVBO = 0;
-    GLuint gIBO = 0;
+    bool gRenderQuad;
+    GLuint gProgramID;
+    GLint gVertexPos2DLocation;
+    GLuint gVBO;
+    GLuint gIBO;
     GLuint _textureId;
-    void loadTexture(std::string path);
+    bool isGlBound;
 protected:
 };
 
