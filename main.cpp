@@ -4,9 +4,9 @@
 #include <SDL.h>
 #include <stdio.h>
 
+#include "Scene.h"
 #include "Camera.h"
 #include "Renderer.h"
-#include "Scene.h"
 
 void handleKeys(Scene& myScene, unsigned char key, int x, int y) {
     if (key == 'q') {
@@ -19,9 +19,10 @@ void update() {
 }
 
 int main(int nArgs, char** vArgs) {
+    Scene myScene;
     Camera myCamera;
     Renderer myRenderer;
-    Scene myScene;
+    myScene.init();
     bool quit = false;
     SDL_Event e;
     SDL_StartTextInput();

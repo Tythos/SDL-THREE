@@ -35,6 +35,7 @@ class Scene {
 public:
     Scene();
     ~Scene();
+    void init();
     bool loadProgram();
     void freeProgram();
     bool bind(GLuint mTextureID);

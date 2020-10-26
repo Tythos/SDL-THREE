@@ -10,7 +10,9 @@ Scene::Scene() {
     mProjectionMatrixLocation = 0;
     mModelviewMatrixLocation = 0;
     mTextureUnitLocation = 0;
+}
 
+void Scene::init() {
     // load mesh
     bool success = loadProgram();
     if (!success) {
