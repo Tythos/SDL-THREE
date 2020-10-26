@@ -26,7 +26,7 @@ struct ColorRGBA {
     GLfloat b;
     GLfloat a;
 };
-struct MultiColorVertex2D {
+struct MultiColorVertex2D { // aggregate final vertex format
     Pos2D pos;
     Pos2D uv;
 };
@@ -58,22 +58,25 @@ public:
     void printShaderLog(GLuint shader);
     void loadTexture(std::string path);
     void createGlBindings();
-    GLuint mProgramID;
-    GLint mVertexPos2DLocation;
-    GLint mTexCoordLocation;
-    GLint mTextureUnitLocation;
-    glm::mat4 mProjection;
-    GLint mProjectionMatrixLocation;
-    glm::mat4 mModelview;
-    GLint mModelviewMatrixLocation;
-    bool gRenderQuad;
-    GLuint gProgramID;
-    GLint gVertexPos2DLocation;
-    GLuint gVBO;
-    GLuint gIBO;
-    GLuint _textureId;
-    bool isGlBound;
+    bool getIsVisible();
+    void setIsVisible(bool);
+    GLuint getTextureId();
+    GLuint getProgramId();
+    GLuint getVboId();
+    GLuint getIboId();
 protected:
+    GLuint _programID;
+    GLint _vertexPos2DLocation;
+    GLint _texCoordLocation;
+    GLint _textureUnitLocation;
+    glm::mat4 _modelview;
+    GLint _modelviewMatrixLocation;
+    bool _isVisible;
+    GLuint _vbo;
+    GLuint _ibo;
+    GLuint _textureId;
+    bool _isGlBound;
+private:
 };
 
 #endif

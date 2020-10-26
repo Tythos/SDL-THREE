@@ -1,5 +1,8 @@
 @echo off
 rem Compiles .CPP source to .OBJ resources using MSVC's command-line compiler
+if not exist .\obj (
+    mkdir obj
+)
 set INCLUDE_FLAGS= ^
     /I"../glew-2.1.0/include" ^
     /I"../glm-0.9.9.8" ^

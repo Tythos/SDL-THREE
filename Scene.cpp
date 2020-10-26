@@ -4,18 +4,39 @@
 #include "Scene.h"
 
 Scene::Scene() {
-    mProgramID = NULL;
-    mVertexPos2DLocation = 0;
-    mTexCoordLocation = 0;
-    mProjectionMatrixLocation = 0;
-    mModelviewMatrixLocation = 0;
-    mTextureUnitLocation = 0;
-    isGlBound = false;
-    gVBO = 0;
-    gIBO = 0;
-    gVertexPos2DLocation = -1;
-    gProgramID = 0;
-    gRenderQuad = true;
+    _programID = NULL;
+    _vertexPos2DLocation = 0;
+    _texCoordLocation = 0;
+    _modelviewMatrixLocation = 0;
+    _textureUnitLocation = 0;
+    _isGlBound = false;
+    _vbo = 0;
+    _ibo = 0;
+    _isVisible = true;
+}
+
+bool Scene::getIsVisible() {
+    return _isVisible;
+}
+
+void Scene::setIsVisible(bool _) {
+    _isVisible = _;
+}
+
+GLuint Scene::getTextureId() {
+    return _textureId;
+}
+
+GLuint Scene::getProgramId() {
+    return _programID;
+}
+
+GLuint Scene::getVboId() {
+    return _vbo;
+}
+
+GLuint Scene::getIboId() {
+    return _ibo;
 }
 
 Scene::~Scene() {
@@ -24,7 +45,7 @@ Scene::~Scene() {
 }
 
 void Scene::freeProgram() {
-    glDeleteProgram(mProgramID);
+    glDeleteProgram(_programID);
 }
 
 void Scene::createGlBindings() {
@@ -52,8 +73,8 @@ void Scene::createGlBindings() {
     quadVertices[3].pos.y = 50.0f;
     quadVertices[3].uv.x = 0.0f;
     quadVertices[3].uv.y = 1.0f;
-    glGenBuffers(1, &gVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, gVBO);
+    glGenBuffers(1, &_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(MultiColorVertex2D), quadVertices, GL_STATIC_DRAW);
 
     // define index buffer
@@ -62,8 +83,8 @@ void Scene::createGlBindings() {
     indices[1] = 1;
     indices[2] = 2;
     indices[3] = 3;
-    glGenBuffers(1, &gIBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gIBO);
+    glGenBuffers(1, &_ibo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 4 * sizeof(GLuint), indices, GL_STATIC_DRAW);
 
     // load actual shader program
@@ -73,22 +94,22 @@ void Scene::createGlBindings() {
     }
 
     // load texture, initialize uniforms
-    loadTexture("bin/image.png"); // also assigns GL texture ID to _textureId
-    isGlBound = true; // careful not to recurse
+    loadTexture("image.png"); // also assigns GL texture ID to _textureId
+    _isGlBound = true; // careful not to recurse
 }
 
 bool Scene::bind(GLuint mTextureID) {
     // check to see if the gl data has been bound yet
-    if (!isGlBound) {
+    if (!_isGlBound) {
         createGlBindings();
     }
 
     // continue using/binding handles
-    glUseProgram(mProgramID);
+    glUseProgram(_programID);
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         printf("Error binding shader! %s\n", gluErrorString(error));
-        printProgramLog(mProgramID);
+        printProgramLog(_programID);
         return false;
     }
     enableVertexPointer();
@@ -105,7 +126,7 @@ void Scene::unbind() {
 }
 
 GLuint Scene::getProgramID() {
-    return mProgramID;
+    return _programID;
 }
 
 void Scene::printProgramLog(GLuint program) {
@@ -142,63 +163,58 @@ void Scene::printShaderLog(GLuint shader) {
 
 bool Scene::loadProgram() {
     GLint programSuccess = GL_TRUE;
-    mProgramID = glCreateProgram();
-    GLuint vertexShader = loadShaderFromFile("bin/poly.v.glsl", GL_VERTEX_SHADER);
+    _programID = glCreateProgram();
+    GLuint vertexShader = loadShaderFromFile("poly.v.glsl", GL_VERTEX_SHADER);
     if (vertexShader == 0) {
-        glDeleteProgram(mProgramID);
-        mProgramID = 0;
+        glDeleteProgram(_programID);
+        _programID = 0;
         return false;
     }
-    glAttachShader(mProgramID, vertexShader);
-    GLuint fragmentShader = loadShaderFromFile("bin/poly.f.glsl", GL_FRAGMENT_SHADER);
+    glAttachShader(_programID, vertexShader);
+    GLuint fragmentShader = loadShaderFromFile("poly.f.glsl", GL_FRAGMENT_SHADER);
     if (fragmentShader == 0) {
         glDeleteShader(vertexShader);
-        glDeleteProgram(mProgramID);
-        mProgramID = 0;
+        glDeleteProgram(_programID);
+        _programID = 0;
         return false;
     }
-    glAttachShader(mProgramID, fragmentShader);
-    glLinkProgram(mProgramID);
-    glGetProgramiv(mProgramID, GL_LINK_STATUS, &programSuccess);
+    glAttachShader(_programID, fragmentShader);
+    glLinkProgram(_programID);
+    glGetProgramiv(_programID, GL_LINK_STATUS, &programSuccess);
     if (programSuccess != GL_TRUE) {
-        printf("Error linking program %d!\n", mProgramID);
-        printProgramLog(mProgramID);
+        printf("Error linking program %d!\n", _programID);
+        printProgramLog(_programID);
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
-        glDeleteProgram(mProgramID);
-        mProgramID = 0;
+        glDeleteProgram(_programID);
+        _programID = 0;
         return false;
     }
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    mVertexPos2DLocation = glGetAttribLocation(mProgramID, "aPos2D");
-    if (mVertexPos2DLocation == -1) {
+    _vertexPos2DLocation = glGetAttribLocation(_programID, "aPos2D");
+    if (_vertexPos2DLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "aPos2D");
         return false;
     }
-    mTexCoordLocation = glGetAttribLocation(mProgramID, "aTexCoord");
-    if (mTexCoordLocation == -1) {
+    _texCoordLocation = glGetAttribLocation(_programID, "aTexCoord");
+    if (_texCoordLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "aTexCoord");
         return false;
     }
-    mTextureUnitLocation = glGetUniformLocation(mProgramID, "uTextureUnit");
-    if (mTextureUnitLocation == -1) {
+    _textureUnitLocation = glGetUniformLocation(_programID, "uTextureUnit");
+    if (_textureUnitLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "uTextureUnit");
         return false;
     }
-    mProjectionMatrixLocation = glGetUniformLocation(mProgramID, "uProjection");
-    if (mProjectionMatrixLocation == -1) {
-        printf("%s is not a valid GLSL program variable!\n", "uProjection");
-        return false;
-    }
-    mModelviewMatrixLocation = glGetUniformLocation(mProgramID, "uModelview");
-    if (mModelviewMatrixLocation == -1) {
+    _modelviewMatrixLocation = glGetUniformLocation(_programID, "uModelview");
+    if (_modelviewMatrixLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "uModelview");
         return false;
     }
-    mTextureUnitLocation = glGetUniformLocation(mProgramID, "uTextureUnit");
-    if (mTextureUnitLocation == -1) {
+    _textureUnitLocation = glGetUniformLocation(_programID, "uTextureUnit");
+    if (_textureUnitLocation == -1) {
         printf("%s is not a valid GLSL program variable!\n", "uTextureUnit");
         return false;
     }
@@ -229,56 +245,44 @@ GLuint Scene::loadShaderFromFile(std::string path, GLenum shaderType) {
     return shaderID;
 }
 
-void Scene::setProjection(glm::mat4 matrix) {
-    mProjection = matrix;
-}
-
 void Scene::setModelview(glm::mat4 matrix) {
-    mModelview = matrix;
-}
-
-void Scene::leftMultProjection(glm::mat4 matrix) {
-    mProjection = matrix * mProjection;
+    _modelview = matrix;
 }
 
 void Scene::leftMultModelview(glm::mat4 matrix) {
-    mModelview = matrix * mModelview;
-}
-
-void Scene::updateProjection() {
-    glUniformMatrix4fv(mProjectionMatrixLocation, 1, GL_FALSE, glm::value_ptr(mProjection));
+    _modelview = matrix * _modelview;
 }
 
 void Scene::updateModelview() {
-    glUniformMatrix4fv(mModelviewMatrixLocation, 1, GL_FALSE, glm::value_ptr(mModelview));
+    glUniformMatrix4fv(_modelviewMatrixLocation, 1, GL_FALSE, glm::value_ptr(_modelview));
 }
 
 void Scene::setVertexPointer(GLsizei stride, const GLvoid* data) {
-    glVertexAttribPointer(mVertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
+    glVertexAttribPointer(_vertexPos2DLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
 }
 
 void Scene::setTexCoordPointer(GLsizei stride, const GLvoid* data) {
-    glVertexAttribPointer(mTexCoordLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
+    glVertexAttribPointer(_texCoordLocation, 2, GL_FLOAT, GL_FALSE, stride, data);
 }
 
 void Scene::setTextureUnit(GLuint unit) {
-    glUniform1i(mTextureUnitLocation, unit);
+    glUniform1i(_textureUnitLocation, unit);
 }
 
 void Scene::enableVertexPointer() {
-    glEnableVertexAttribArray(mVertexPos2DLocation);
+    glEnableVertexAttribArray(_vertexPos2DLocation);
 }
 
 void Scene::disableVertexPointer() {
-    glDisableVertexAttribArray(mVertexPos2DLocation);
+    glDisableVertexAttribArray(_vertexPos2DLocation);
 }
 
 void Scene::enableTexCoordPointer() {
-    glEnableVertexAttribArray(mTexCoordLocation);
+    glEnableVertexAttribArray(_texCoordLocation);
 }
 
 void Scene::disableTexCoordPointer() {
-    glDisableVertexAttribArray(mTexCoordLocation);
+    glDisableVertexAttribArray(_texCoordLocation);
 }
 
 void Scene::loadTexture(std::string path) {

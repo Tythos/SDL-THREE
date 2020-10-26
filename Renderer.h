@@ -20,13 +20,13 @@ public:
     Renderer();
     ~Renderer();
     bool init();
-    void render(Scene& myScene, Camera& myCamera);
+    void render(Scene* myScene, Camera* myCamera);
     void close();
-    const int SCREEN_WIDTH = 640;
-    const int SCREEN_HEIGHT = 480;
-    SDL_Window* gWindow = NULL;
-    SDL_GLContext gContext;
 protected:
+    const int _screenWidth = 640;
+    const int _screenHeight = 480;
+    SDL_Window* _window = NULL;
+    SDL_GLContext _context;
 private:
 };
 

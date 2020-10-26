@@ -7,36 +7,41 @@
 #include "Camera.h"
 #include "Renderer.h"
 
-void handleKeys(Scene& myScene, unsigned char key, int x, int y) {
+void handleKeys(Scene* myScene, unsigned char key, int x, int y) {
     if (key == 'q') {
-        myScene.gRenderQuad= !myScene.gRenderQuad;
+        myScene->setIsVisible(!myScene->getIsVisible());
     }
 }
 
-void update() {
+bool update(Scene* myScene) {
     //
+    bool quit = false;
+    SDL_Event event;
+    while (SDL_PollEvent(&event) != 0) {
+        if (event.type == SDL_QUIT) {
+            quit = true;
+        } else if (event.type == SDL_TEXTINPUT)  {
+            int x = 0, y = 0;
+            SDL_GetMouseState(&x, &y);
+            handleKeys(myScene, event.text.text[0], x, y);
+        }
+    }
+    return quit;
 }
 
 int main(int nArgs, char** vArgs) {
-    Scene myScene;
-    Camera myCamera;
-    Renderer myRenderer;
+    Scene* myScene = new Scene();
+    Camera* myCamera = new Camera();
+    Renderer* myRenderer = new Renderer();
     bool quit = false;
-    SDL_Event e;
     SDL_StartTextInput();
     while (!quit) {
-        while (SDL_PollEvent(&e) != 0) {
-            if (e.type == SDL_QUIT) {
-                quit = true;
-            } else if (e.type == SDL_TEXTINPUT)  {
-                int x = 0, y = 0;
-                SDL_GetMouseState(&x, &y);
-                handleKeys(myScene, e.text.text[0], x, y);
-            }
-        }
-        myRenderer.render(myScene, myCamera);
+        quit = update(myScene);
+        myRenderer->render(myScene, myCamera);
     }
     SDL_StopTextInput();
-    myRenderer.close();
+    delete myRenderer;
+    delete myCamera;
+    delete myScene;
     return 0;
 }

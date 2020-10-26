@@ -1,8 +1,10 @@
-/*
+/* A Camera model captures the user view, including projection matrix. More
+   detailed future implementations may also include things like dolly behaviors
+   and specific control manipulations.
 */
 
-#ifndef MY_CAMERA_H
-#define MY_CAMERA_H
+#ifndef SDLTHREE_CAMERA_H
+#define SDLTHREE_CAMERA_H
 
 #include <stdio.h>
 #include <SDL.h>
@@ -19,9 +21,9 @@ public:
     void leftMultProjection(glm::mat4 matrix);
     void updateProjection();
     void assertProjection(GLuint programID, int width, int height);
-    glm::mat4 mProjection;
-    GLint mProjectionMatrixLocation;
 protected:
+    glm::mat4 _projection;
+    GLint _projectionMatrixLocation;
 private:
 };
 
